@@ -1,3 +1,5 @@
+import os
+
 import joblib
 import numpy as np
 import pandas as pd
@@ -6,69 +8,70 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 
-# Load the model and vectorizer
-model = joblib.load('sentiment_model.pkl')
-tfidf = joblib.load('tfidf_vectorizer.pkl')
 
+def make_prediction():
+    if not os.path.exists('sentiment_model.pkl') or not os.path.exists('tfidf_vectorizer.pkl'):
+        print("Model not found. Please train the model first.")
+        return
 
-def predict_sentiment(text):
-    # Vectorize the input text
-    vectorized_text = tfidf.transform([text])
+    model = joblib.load('sentiment_model.pkl')
+    tfidf_vectorizer = joblib.load('tfidf_vectorizer.pkl')
 
-    # Make a prediction
-    prediction = model.predict(vectorized_text)
-
-    return prediction[0]
-
-
-def main():
     while True:
-        # Get user input
-        user_input = input("Enter text to analyze sentiment, or type 'exit' to quit: ")
-
-        if user_input.lower() == 'exit':
+        user_input = input("Enter text to analyze sentiment: ")
+        if user_input == 'exit':
             break
 
-        # Predict sentiment
-        sentiment = predict_sentiment(user_input)
-        print(f"Predicted Sentiment: {sentiment}")
+        vectorized_user_input = tfidf_vectorizer.transform([user_input])
 
-    # # Train model
-    # train_file_path = '/home/alexandr/Downloads/train.csv'
-    # test_file_path = '/home/alexandr/Downloads/test.csv'
-    #
-    # train_data = pd.read_csv(train_file_path, encoding='ISO-8859-1')
-    # test_data = pd.read_csv(test_file_path, encoding='ISO-8859-1')
-    #
-    # train_data['text'] = train_data['text'].fillna('')
-    # test_data['text'] = test_data['text'].fillna('')
-    #
-    # train_data['sentiment'] = train_data['sentiment'].astype(str)
-    # test_data['sentiment'] = test_data['sentiment'].astype(str)
-    #
-    # tfidf = TfidfVectorizer(max_features=5000)  # Limiting to 5000 features
-    # X_train = tfidf.fit_transform(train_data['text'])
-    # y_train = train_data['sentiment']
-    #
-    # # Model Training
-    # model = LogisticRegression(max_iter=1000)
-    # model.fit(X_train, y_train)
-    #
-    # # Applying the same transformation to the test data
-    # X_test = tfidf.transform(test_data['text'])
-    # y_test = test_data['sentiment']
-    #
-    # # Model Evaluation
-    # predictions = model.predict(X_test)
-    # report = classification_report(y_test, predictions)
-    # print(report)
-    #
-    # # Save the model
-    # joblib.dump(model, 'sentiment_model.pkl')
-    #
-    # # Save the TF-IDF vectorizer
-    # joblib.dump(tfidf, 'tfidf_vectorizer.pkl')
+        prediction = model.predict(vectorized_user_input)
+
+        print(f"Predicted Sentiment: {prediction[0]}")
+
+
+def train_model():
+    """
+    Train Logistic Regression model and save it
+    """
+    train_file_path = 'train.csv'
+
+    train_data = pd.read_csv(train_file_path, encoding='ISO-8859-1')
+
+    # Data Preprocessing
+    train_data['text'] = train_data['text'].fillna('')
+    train_data['sentiment'] = train_data['sentiment'].astype(str)
+
+    tfidf_vectorizer = TfidfVectorizer(max_features=5000)
+    x_train = tfidf_vectorizer.fit_transform(train_data['text'])
+    y_train = train_data['sentiment']
+
+    # Model Training
+    model = LogisticRegression(max_iter=1000)
+    model.fit(x_train, y_train)
+
+    joblib.dump(model, 'sentiment_model.pkl')
+    joblib.dump(tfidf_vectorizer, 'tfidf_vectorizer.pkl')
+
+
+def main_menu():
+    while True:
+        print("\nSentiment Analysis")
+
+        print("1. Train Model")
+        print("2. Make a Prediction")
+        print("3. Exit")
+        choice = input("Enter your choice (1/2/3):")
+
+        if choice == '1':
+            train_model()
+        elif choice == '2':
+            make_prediction()
+        elif choice == '3':
+            print("Exiting the program.")
+            break
+        else:
+            print("Invalid choice. Please enter 1, 2, or 3.")
 
 
 if __name__ == "__main__":
-    main()
+    main_menu()
