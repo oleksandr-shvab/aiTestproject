@@ -42,12 +42,12 @@ def train_model():
     train_data['sentiment'] = train_data['sentiment'].astype(str)
 
     tfidf_vectorizer = TfidfVectorizer(max_features=5000)
-    x_train = tfidf_vectorizer.fit_transform(train_data['text'])
+    X_train = tfidf_vectorizer.fit_transform(train_data['text'])
     y_train = train_data['sentiment']
 
     # Model Training
     model = LogisticRegression(max_iter=1000)
-    model.fit(x_train, y_train)
+    model.fit(X_train, y_train)
 
     joblib.dump(model, 'sentiment_model.pkl')
     joblib.dump(tfidf_vectorizer, 'tfidf_vectorizer.pkl')
