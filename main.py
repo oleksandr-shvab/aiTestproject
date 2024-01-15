@@ -1,10 +1,6 @@
-import os
-
 import joblib
-import numpy as np
 import pandas as pd
 from sklearn.compose import ColumnTransformer
-from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
@@ -12,31 +8,9 @@ from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 
-def make_prediction():
-    if not os.path.exists('sentiment_model.pkl') or not os.path.exists('tfidf_vectorizer.pkl'):
-        print("Model not found. Please train the model first.")
-        return
+def numeric_analysis():
+    print("\nNumeric Analysis")
 
-    model = joblib.load('sentiment_model.pkl')
-    tfidf_vectorizer = joblib.load('tfidf_vectorizer.pkl')
-
-    while True:
-        user_input = input("Enter text to analyze sentiment: ")
-        if user_input == 'exit':
-            break
-
-        vectorized_user_input = tfidf_vectorizer.transform([user_input])
-
-        prediction = model.predict(vectorized_user_input)
-
-        print(f"Predicted Sentiment: {prediction[0]}")
-
-
-def train_model():
-    """
-    Train Logistic Regression model and save it
-    """
-    # Load your dataset
     data = pd.read_csv('cirrhosis.csv')
 
     # Handling missing values
@@ -77,25 +51,5 @@ def train_model():
     print(classification_report(y_test, y_pred))
 
 
-def main_menu():
-    while True:
-        print("\nSentiment Analysis")
-
-        print("1. Train Model")
-        print("2. Make a Prediction")
-        print("3. Exit")
-        choice = input("Enter your choice (1/2/3):")
-
-        if choice == '1':
-            train_model()
-        elif choice == '2':
-            make_prediction()
-        elif choice == '3':
-            print("Exiting the program.")
-            break
-        else:
-            print("Invalid choice. Please enter 1, 2, or 3.")
-
-
 if __name__ == "__main__":
-    main_menu()
+    numeric_analysis()
